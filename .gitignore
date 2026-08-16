@@ -1,0 +1,16 @@
+# macOS metadata
+.DS_Store
+__MACOSX/
+._*
+
+# REAPER state and backups
+*.rpp-bak
+*.rpp-undo
+*.reapeaks
+reaper.ini
+
+# Linux / IDE / Temp files
+*~
+*.swp
+*.tmp
+.cache/

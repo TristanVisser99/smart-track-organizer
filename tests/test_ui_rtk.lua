@@ -79,8 +79,13 @@ _G.gfx = setmetatable({
   end
 })
 
-local has_rtk, rtk = pcall(require, "rtk")
-assert_eq(has_rtk, true, "RTK library loads successfully in test environment")
+local has_rtk, rtk_or_err = pcall(require, "rtk")
+if not has_rtk then
+  error("RTK library failed to load in test environment: " .. tostring(rtk_or_err))
+end
+local rtk = rtk_or_err
+
+
 
 local dummy_icon = {
   w = 16,

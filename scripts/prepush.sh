@@ -28,12 +28,13 @@ fi
 if command -v luacheck &> /dev/null; then
     echo ""
     echo "▶ Running Luacheck..."
-    luacheck .
+    luacheck src/ "Smart Track Organizer.lua"
     if [ $? -ne 0 ]; then
         echo "❌ Luacheck lint errors found! Push aborted."
         exit 1
     fi
 fi
+
 
 # 3. Run Selene if available
 if command -v selene &> /dev/null; then

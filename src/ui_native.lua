@@ -1,5 +1,5 @@
-local core = require("smart_track_organizer_core")
-local adapter = require("reaper_adapter")
+local core = require "smart_track_organizer_core"
+local adapter = require "reaper_adapter"
 
 local ui_native = {}
 
@@ -10,10 +10,12 @@ function ui_native.launch(reaper_api)
     "Scope: all or selected,Create folder groups? yes/no,Prefix renamed tracks? yes/no,Dry run? yes/no",
     "all,yes,yes,no"
   )
-  if not ok then return end
+  if not ok then
+    return
+  end
 
   local fields = {}
-  for field in (values .. ","):gmatch("([^,]*),") do
+  for field in (values .. ","):gmatch "([^,]*)," do
     fields[#fields + 1] = field:lower():gsub("^%s+", ""):gsub("%s+$", "")
   end
 
@@ -21,7 +23,7 @@ function ui_native.launch(reaper_api)
     selected_only = fields[1] == "selected",
     create_folders = fields[2] ~= "no",
     prefix_names = fields[3] ~= "no",
-    dry_run = fields[4] == "yes"
+    dry_run = fields[4] == "yes",
   }
 
   local raw_tracks = adapter.collect_tracks(reaper_api)

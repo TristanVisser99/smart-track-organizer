@@ -111,8 +111,5 @@ To run the entire test suite locally:
 - Reactive UI state store transitions and search filtering.
 - Lua 5.4, Lua 5.3, and LuaJIT cross-compatibility.
 
----
 
-## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

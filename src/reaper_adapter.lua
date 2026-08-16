@@ -1,5 +1,5 @@
-local core = require("smart_track_organizer_core")
-local palettes = require("palettes")
+local core = require "smart_track_organizer_core"
+local palettes = require "palettes"
 
 local adapter = {}
 
@@ -17,14 +17,18 @@ function adapter.load_options(reaper_api)
     prefix_names = true,
     sort_tracks = true,
     selected_only = false,
-    palette = palettes.DEFAULT
+    palette = palettes.DEFAULT,
   }
 
   if reaper_api and reaper_api.HasExtState and reaper_api.HasExtState(adapter.PREFS_SECTION, "saved") then
     local get_bool = function(key, default)
       local val = reaper_api.GetExtState(adapter.PREFS_SECTION, key)
-      if val == "1" then return true end
-      if val == "0" then return false end
+      if val == "1" then
+        return true
+      end
+      if val == "0" then
+        return false
+      end
       return default
     end
 
@@ -69,8 +73,6 @@ function adapter.save_options(opts, reaper_api)
   reaper_api.SetExtState(adapter.PREFS_SECTION, "saved", "1", true)
 end
 
-
-
 function adapter.get_track_name(track, reaper_api)
   local _, name = reaper_api.GetTrackName(track)
   return name or ""
@@ -101,7 +103,7 @@ function adapter.set_ext(track, key, value, reaper_api)
 end
 
 function adapter.is_generated_folder(track, reaper_api)
-  return adapter.get_ext(track, adapter.GENERATED_FOLDER_KEY, reaper_api) == "1" or adapter.get_track_name(track, reaper_api):match("^STO %- ") ~= nil
+  return adapter.get_ext(track, adapter.GENERATED_FOLDER_KEY, reaper_api) == "1" or adapter.get_track_name(track, reaper_api):match "^STO %- " ~= nil
 end
 
 function adapter.collect_tracks(reaper_api)
@@ -115,7 +117,7 @@ function adapter.collect_tracks(reaper_api)
       fx_names = adapter.get_track_fx_names(track, reaper_api),
       selected = reaper_api.IsTrackSelected(track),
       generated_folder = adapter.is_generated_folder(track, reaper_api),
-      original_index = index
+      original_index = index,
     }
   end
   return tracks

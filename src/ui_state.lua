@@ -1,6 +1,6 @@
 ---@meta
-local core = require("smart_track_organizer_core")
-local adapter = require("reaper_adapter")
+local core = require "smart_track_organizer_core"
+local adapter = require "reaper_adapter"
 
 local ui_state = {}
 
@@ -21,7 +21,7 @@ function ui_state.create(reaper_api)
     active_count = 0,
     total_count = 0,
     summary_text = "",
-    listeners = {}
+    listeners = {},
   }
 
   state.options = adapter.load_options(state.reaper_api)
@@ -109,10 +109,12 @@ function ui_state.create(reaper_api)
             item = p_track,
             raw_track = raw_t,
             is_checked = true,
-            tid = tid
+            tid = tid,
           }
         end
-        if tid then added_tids[tid] = true end
+        if tid then
+          added_tids[tid] = true
+        end
       end
     end
 
@@ -132,7 +134,7 @@ function ui_state.create(reaper_api)
             item = item,
             raw_track = raw_t,
             is_checked = false,
-            tid = raw_t.id
+            tid = raw_t.id,
           }
         end
       end
@@ -140,7 +142,6 @@ function ui_state.create(reaper_api)
 
     self.display_items = display_items
   end
-
 
   ---Recalculate the organization plan
   function state:recalculate_plan()
@@ -187,13 +188,12 @@ function ui_state.create(reaper_api)
       end
     end
 
-    self.summary_text = string.format("Selected for Organization: %d of %d Tracks  |  Breakdown: %s",
-      self.active_count, self.total_count, core.summarize_plan(self.full_plan))
+    self.summary_text =
+      string.format("Selected for Organization: %d of %d Tracks  |  Breakdown: %s", self.active_count, self.total_count, core.summarize_plan(self.full_plan))
 
     self:compute_display_items()
     self:notify()
   end
-
 
   state:reload_tracks(true)
   return state

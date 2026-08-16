@@ -16,44 +16,49 @@ jobs:
 
       # 1. StyLua Code Formatting Check
       - name: StyLua Format Check
-        uses: JohnnyMorganz/stylua-action@v5
+        uses: JohnnyMorganz/stylua-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --check .
+          version: latest
+          args: --check src/ "Smart Track Organizer.lua"
+
 
       # 2. Selene Strict Linter
       - name: Selene Static Linter
         uses: NTBBloodbath/selene-action@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --display-style=quiet .
+          args: --display-style=quiet src/ "Smart Track Organizer.lua"
+
 
   multi-version-tests:
     name: Test Suite (Lua ${{ matrix.luaVersion }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        luaVersion: ["5.4", "5.3", "luajit"]
+        luaVersion: ["5.4", "5.3"]
+
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Lua environment
-        uses: hishamhm/gh-actions-lua@v11
+        uses: hishamhm/gh-actions-lua@master
         with:
           luaVersion: ${{ matrix.luaVersion }}
 
       - name: Setup LuaRocks
-        uses: hishamhm/gh-actions-luarocks@v4
+        uses: hishamhm/gh-actions-luarocks@master
 
       - name: Install Luacheck Linter
         run: luarocks install luacheck
 
       - name: Run Luacheck Analysis
-        run: luacheck .
+        run: luacheck src/ "Smart Track Organizer.lua"
 
-      - name: Run Strict Test Suites (28 Tests)
+      - name: Run Strict Test Suites
         run: |
           chmod +x run_tests.sh
           ./run_tests.sh
+

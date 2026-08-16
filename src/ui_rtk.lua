@@ -1,9 +1,9 @@
 ---@meta
-local adapter = require("reaper_adapter")
-local theme = require("theme")
-local draw = require("ui_draw_helpers")
-local ui_state = require("ui_state")
-local ui_components = require("ui_components")
+local adapter = require "reaper_adapter"
+local theme = require "theme"
+local draw = require "ui_draw_helpers"
+local ui_state = require "ui_state"
+local ui_components = require "ui_components"
 
 local ui_rtk = {}
 
@@ -16,7 +16,7 @@ function ui_rtk.launch(rtk, reaper_api)
 
   local state = ui_state.create(reaper_api)
 
-  local window = rtk.Window{
+  local window = rtk.Window {
     title = "Smart Track Organizer Pro",
     w = 980,
     h = 660,
@@ -24,44 +24,38 @@ function ui_rtk.launch(rtk, reaper_api)
     minh = 500,
     resizable = true,
     dockable = true,
-    bg = theme.colors.bg_canvas
+    bg = theme.colors.bg_canvas,
   }
 
-  local root = window:add(rtk.VBox{
+  local root = window:add(rtk.VBox {
     padding = theme.spacing.window_padding,
     spacing = theme.spacing.gap_md,
     bg = theme.colors.bg_canvas,
-    box = { expand = "both", fill = true }
+    box = { expand = "both", fill = true },
   })
 
   -- Build UI Components
-  local palette_dropdown = ui_components.build_header(root, state.options.palette, function(self)
-    state:update_options{ palette = self.selected_id or self.selected }
+  ui_components.build_header(root, state.options.palette, function(self)
+    state:update_options { palette = self.selected_id or self.selected }
   end)
 
-  local search_entry, chk_folders, chk_prefix, sort_dropdown
-  search_entry, chk_folders, chk_prefix, sort_dropdown = ui_components.build_control_row(
-    root,
-    state.options,
-    function(self)
-      state:set_filter(self.value)
-    end,
-    function()
-      state:update_options{
-        create_folders = chk_folders and chk_folders.value,
-        prefix_names = chk_prefix and chk_prefix.value,
-        sort_mode = sort_dropdown and (sort_dropdown.selected_id or sort_dropdown.selected or "mix") or "mix",
-        sort_tracks = (sort_dropdown and ((sort_dropdown.selected_id or sort_dropdown.selected or "mix") ~= "none"))
-      }
-    end
-  )
+  local _, chk_folders, chk_prefix, sort_dropdown
+  _, chk_folders, chk_prefix, sort_dropdown = ui_components.build_control_row(root, state.options, function(self)
+    state:set_filter(self.value)
+  end, function()
+    state:update_options {
+      create_folders = chk_folders and chk_folders.value,
+      prefix_names = chk_prefix and chk_prefix.value,
+      sort_mode = sort_dropdown and (sort_dropdown.selected_id or sort_dropdown.selected or "mix") or "mix",
+      sort_tracks = (sort_dropdown and ((sort_dropdown.selected_id or sort_dropdown.selected or "mix") ~= "none")),
+    }
+  end)
 
-
-  local chk_select_all = ui_components.build_table_header(root, function(self)
+  ui_components.build_table_header(root, function(self)
     state:set_all_selected(self.value)
   end)
 
-  local viewport, table_vbox = ui_components.build_viewport(root)
+  local _, table_vbox = ui_components.build_viewport(root)
   local status_bar = ui_components.build_status_bar(root)
 
   ui_components.build_button_bar(root, function()

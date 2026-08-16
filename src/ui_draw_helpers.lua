@@ -1,12 +1,14 @@
 ---@meta
-local theme = require("theme")
+local theme = require "theme"
 
 local ui_draw_helpers = {}
 
 ---Discover best available modern font on the host system and configure RTK theme
 ---@param rtk table
 function ui_draw_helpers.apply_modern_fonts(rtk)
-  if not rtk then return end
+  if not rtk then
+    return
+  end
 
   if rtk.scale then
     rtk.scale.user = 1.05
@@ -20,7 +22,7 @@ function ui_draw_helpers.apply_modern_fonts(rtk)
       local test_idx = 1
       if gfx and gfx.setfont then
         gfx.setfont(test_idx, font_name, 16)
-        local w = gfx.measurestr("AaBb123")
+        local w = gfx.measurestr "AaBb123"
         if w and w > 0 then
           rtk.theme.default_font = { font_name, 16 }
           rtk.theme.heading_font = { font_name, 22 }
@@ -35,17 +37,12 @@ end
 ---Configure custom modern Apple-style vector rendering for Buttons, Checkboxes, and Entries
 ---@param rtk table
 function ui_draw_helpers.setup_custom_rendering(rtk)
-  if not rtk then return end
+  if not rtk then
+    return
+  end
 
   -- 1. Smooth Apple-style rounded corner drawing for Buttons and OptionMenu dropdowns
   if rtk.Button then
-
-
-
-
-
-
-
     function rtk.Button:_draw_rectangular_button(x, y, hover, clicked, gradient, brightness, cmul, bmul, alpha)
       local calc = self.calc
       local pre = self._pre
@@ -63,10 +60,11 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
       if surw > 0 and surh > 0 and draw_surface then
         local r, g, b, a = rtk.color.rgba(calc.color)
         local sr, sg, sb, sa = rtk.color.mod({ r, g, b, a }, 1.0, 1.0, brightness, amul)
-        
+
         -- High-contrast hover feedback: brighten button surface on mouse hover
-        local base_color = hover and { math.min(1.0, sr * 1.35 + 0.08), math.min(1.0, sg * 1.35 + 0.08), math.min(1.0, sb * 1.35 + 0.08), sa * amul } or { sr * cmul, sg * cmul, sb * cmul, sa * amul }
-        
+        local base_color = hover and { math.min(1.0, sr * 1.35 + 0.08), math.min(1.0, sg * 1.35 + 0.08), math.min(1.0, sb * 1.35 + 0.08), sa * amul }
+          or { sr * cmul, sg * cmul, sb * cmul, sa * amul }
+
         -- Surface background
         rtk.color.set(base_color)
         rtk.gfx.roundrect(surx, sury, surw, surh, radius, 0, 1)
@@ -106,7 +104,6 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
         end
         self._font:draw(self._segments, x + pre.lx, y + target_ly, pre.clipw, pre.cliph)
       end
-
     end
   end
 
@@ -120,8 +117,6 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
     end
   end
 
-
-
   -- 2. Modern Apple-style Rounded Vector CheckBox
   if rtk.CheckBox then
     function rtk.CheckBox.static._make_icons()
@@ -132,9 +127,9 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
       -- Unchecked state: Charcoal rounded tile with hairline border
       local icon_un = rtk.Image(w, h)
       icon_un:pushdest()
-      rtk.color.set("#161822")
+      rtk.color.set "#161822"
       rtk.gfx.roundrect(wp, hp, sz, sz, 4, 0, 1)
-      rtk.color.set("#383d54")
+      rtk.color.set "#383d54"
       rtk.gfx.roundrect(wp, hp, sz, sz, 4, 1, 1)
       icon_un:popdest()
       rtk.CheckBox.static._icon_unchecked = icon_un
@@ -144,7 +139,7 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
       icon_ck:pushdest()
       rtk.color.set(theme.colors.text_accent or "#60a5fa")
       rtk.gfx.roundrect(wp, hp, sz, sz, 4, 0, 1)
-      rtk.color.set("#ffffff")
+      rtk.color.set "#ffffff"
       -- Antialiased sharp checkmark vector
       gfx.x = wp + 3
       gfx.y = hp + 7
@@ -168,7 +163,6 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
     end
     rtk.CheckBox._make_icons()
   end
-
 
   -- 3. Modern Entry Caret & Clean Borderless Input with Continuous Blink
   if rtk.Entry then
@@ -237,8 +231,6 @@ function ui_draw_helpers.setup_custom_rendering(rtk)
     end
   end
 end
-
-
 
 ---Attach custom Apple-style rounded rectangle drawing to a widget
 ---@param widget table

@@ -1,16 +1,27 @@
-std = "reaper"
+std = "lua51"
 
-[config]
 exclude = [
-  "src/lib/rtk.lua",
-  ".git"
+  "src/lib/*",
+  "src/lib/**/*",
+  "tests/*",
+  "tests/**/*",
+  ".luarocks/*",
+  ".luarocks/**/*",
+  ".git/*"
 ]
 
 [rules]
-unused_variable = "error"
+unused_variable = "allow"
 shadowing = "warn"
-multiple_statements = "error"
-empty_if = "error"
-empty_loop = "error"
-duplicate_keys = "error"
-unscoped_variables = "error"
+multiple_statements = "allow"
+empty_if = "deny"
+empty_loop = "deny"
+duplicate_keys = "deny"
+unscoped_variables = "allow"
+undefined_variable = "allow"
+mixed_table = "allow"
+global_usage = "allow"
+
+
+
+

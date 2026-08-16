@@ -1,7 +1,7 @@
 ---@meta
 
-local palettes = require("palettes")
-local lexicon = require("lexicon")
+local palettes = require "palettes"
+local lexicon = require "lexicon"
 
 ---@class TrackCandidate
 ---@field id string
@@ -156,7 +156,7 @@ end
 ---@param name string
 ---@return CategoryDefinition
 function core.classify_track_name(name)
-  return core.classify_track({ name = name })
+  return core.classify_track { name = name }
 end
 
 local titlecase_small_words = {
@@ -169,7 +169,7 @@ local titlecase_small_words = {
   of = true,
   ["on"] = true,
   the = true,
-  ["to"] = true
+  ["to"] = true,
 }
 
 local function titlecase_word(word, index)
@@ -188,7 +188,7 @@ end
 
 local function titlecase(value)
   local words = {}
-  for word in tostring(value or ""):gmatch("%S+") do
+  for word in tostring(value or ""):gmatch "%S+" do
     words[#words + 1] = titlecase_word(word, #words + 1)
   end
   return table.concat(words, " ")
@@ -217,7 +217,7 @@ function core.clean_track_name(name)
   value = value:gsub("%s+", " ")
   value = value:gsub("^%s+", ""):gsub("%s+$", "")
 
-  if value == "" or value:lower():match("^track%s*%d*$") or not value:match("%w") then
+  if value == "" or value:lower():match "^track%s*%d*$" or not value:match "%w" then
     return "Untitled"
   end
 
@@ -247,7 +247,7 @@ local vocal_first_priority = {
   fx = 8,
   returns = 9,
   other = 10,
-  reference = 11
+  reference = 11,
 }
 
 local function get_sort_comparator(sort_mode)
@@ -336,7 +336,7 @@ function core.build_plan(tracks, options)
         category_order = category.order,
         color = category_color,
         role_rank = category.role_rank or 999,
-        score = category.score or 0
+        score = category.score or 0,
       }
     end
   end
@@ -351,7 +351,6 @@ function core.build_plan(tracks, options)
     table.sort(candidates, comp)
   end
 
-
   local seen_categories = {}
   local groups = {}
   for new_index, item in ipairs(candidates) do
@@ -363,7 +362,7 @@ function core.build_plan(tracks, options)
         prefix = item.category_prefix,
         color = item.color,
         first_index = new_index,
-        count = 0
+        count = 0,
       }
       groups[#groups + 1] = seen_categories[item.category_key]
     end
@@ -375,7 +374,7 @@ function core.build_plan(tracks, options)
     palette = palette_name,
     options = options,
     tracks = candidates,
-    groups = groups
+    groups = groups,
   }
 end
 
@@ -408,7 +407,7 @@ function core.folder_insertions(plan)
       count = group.count,
       insert_at_zero = insert_at_zero,
       folder_index_zero = insert_at_zero,
-      last_child_index_zero = insert_at_zero + group.count
+      last_child_index_zero = insert_at_zero + group.count,
     }
     inserted = inserted + 1
   end

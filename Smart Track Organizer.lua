@@ -20,20 +20,17 @@
 --   src/ui_native.lua
 --   src/lib/rtk.lua
 
-
-
-
 local script_file = ({ reaper.get_action_context() })[2] or ""
-local script_path = script_file:match("^(.*)[/\\]") or "."
+local script_path = script_file:match "^(.*)[/\\]" or "."
 package.path = script_path .. "/src/?.lua;" .. script_path .. "/src/lib/?.lua;" .. package.path
 
 local has_rtk, rtk = pcall(require, "rtk")
-local ui_rtk = require("ui_rtk")
-local ui_native = require("ui_native")
+local ui_rtk = require "ui_rtk"
+local ui_native = require "ui_native"
 
 local function main()
   if not reaper or not reaper.CountTracks then
-    error("This script must be run inside REAPER.")
+    error "This script must be run inside REAPER."
   end
 
   if has_rtk and rtk and rtk.Window then

@@ -1,2 +1,5 @@
 src/lib/rtk.lua
+.luarocks
 .git
+tests
+

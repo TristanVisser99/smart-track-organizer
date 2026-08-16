@@ -1,148 +1,68 @@
+---@meta
+
+local palettes = require("palettes")
+local lexicon = require("lexicon")
+
+---@class TrackCandidate
+---@field id string
+---@field track table
+---@field original_index integer
+---@field original_name string
+---@field clean_name string
+---@field new_name string
+---@field category_key string
+---@field category_label string
+---@field category_prefix string
+---@field category_order integer
+---@field color number
+---@field role_rank integer
+---@field score number
+---@field new_index? integer
+
+---@class GroupSummary
+---@field key string
+---@field label string
+---@field prefix string
+---@field color number
+---@field first_index integer
+---@field count integer
+
+---@class OrganizationPlan
+---@field version string
+---@field palette string
+---@field options table
+---@field tracks TrackCandidate[]
+---@field groups GroupSummary[]
+
+---@class FolderInsertion
+---@field key string
+---@field label string
+---@field color number
+---@field count integer
+---@field insert_at_zero integer
+---@field folder_index_zero integer
+---@field last_child_index_zero integer
+
 local core = {}
 
-core.VERSION = "1.0.0"
+core.VERSION = "2.0.0"
+core.DEFAULT_PALETTE = palettes.DEFAULT
+core.categories = lexicon.categories
+core.palettes = palettes.themes
 
-local DEFAULT_COLOR = 0x6E6E6E
+---Get palette theme by name
+---@param name? string
+---@return PaletteTheme
+function core.get_palette(name)
+  return palettes.get(name)
+end
 
-core.categories = {
-  {
-    key = "drums",
-    label = "Drums",
-    prefix = "DRM",
-    color = 0xD94B3D,
-    tokens = {
-      "drum", "drums", "kick", "bd", "snare", "sd", "rim", "clap", "hat",
-      "hihat", "hi hat", "tom", "toms", "ride", "crash", "cymbal", "perc",
-      "percussion", "overhead", "oh", "drum room", "drums room", "kit room",
-      "breakbeat"
-    },
-    role_order = {
-      "kick", "bd", "snare", "sd", "clap", "hat", "hihat", "hi hat", "tom",
-      "toms", "overhead", "oh", "drum room", "drums room", "kit room", "perc",
-      "percussion"
-    }
-  },
-  {
-    key = "bass",
-    label = "Bass",
-    prefix = "BAS",
-    color = 0x3F7D20,
-    tokens = { "bass", "sub", "808", "low end", "upright" },
-    role_order = { "sub", "808", "bass", "upright" }
-  },
-  {
-    key = "vocals",
-    label = "Vocals",
-    prefix = "VOX",
-    color = 0x8E5AD7,
-    tokens = {
-      "vox", "vocal", "vocals", "lead vox", "lead vocal", "backing", "bvox",
-      "bgv", "choir", "adlib", "ad lib", "harmony", "harmonies", "double"
-    },
-    role_order = {
-      "lead vox", "lead vocal", "vocal", "vox", "double", "harmony",
-      "harmonies", "backing", "bvox", "bgv", "adlib", "ad lib"
-    }
-  },
-  {
-    key = "guitars",
-    label = "Guitars",
-    prefix = "GTR",
-    color = 0xD69A2D,
-    tokens = {
-      "gtr", "guitar", "guitars", "acoustic", "electric", "rhythm gtr",
-      "lead gtr", "dist guitar", "clean guitar"
-    },
-    role_order = {
-      "acoustic", "rhythm gtr", "lead gtr", "clean guitar", "dist guitar",
-      "gtr", "guitar"
-    }
-  },
-  {
-    key = "keys",
-    label = "Keys",
-    prefix = "KEY",
-    color = 0x2F86A6,
-    tokens = {
-      "keys", "keyboard", "piano", "rhodes", "wurli", "organ", "epiano",
-      "electric piano", "clav", "melotron"
-    },
-    role_order = { "piano", "rhodes", "wurli", "organ", "keys", "keyboard" }
-  },
-  {
-    key = "synths",
-    label = "Synths",
-    prefix = "SYN",
-    color = 0x40A7A0,
-    tokens = {
-      "synth", "synths", "pad", "lead synth", "arp", "pluck", "sequence",
-      "seq", "texture"
-    },
-    role_order = { "pad", "lead synth", "arp", "pluck", "sequence", "seq", "synth" }
-  },
-  {
-    key = "strings",
-    label = "Strings",
-    prefix = "STR",
-    color = 0xB56B84,
-    tokens = { "string", "strings", "violin", "viola", "cello", "contrabass" },
-    role_order = { "violin", "viola", "cello", "contrabass", "strings" }
-  },
-  {
-    key = "brass",
-    label = "Brass/Winds",
-    prefix = "HORN",
-    color = 0xC8A13A,
-    tokens = {
-      "brass", "horn", "horns", "trumpet", "trombone", "sax", "saxophone",
-      "flute", "clarinet", "woodwind"
-    },
-    role_order = { "trumpet", "trombone", "sax", "saxophone", "flute", "clarinet", "horn" }
-  },
-  {
-    key = "fx",
-    label = "FX",
-    prefix = "FX",
-    color = 0x6C8AE4,
-    tokens = {
-      "fx", "sfx", "riser", "impact", "sweep", "whoosh", "noise", "downlifter",
-      "uplifter", "reverse", "transition"
-    },
-    role_order = { "riser", "impact", "sweep", "whoosh", "downlifter", "uplifter", "fx" }
-  },
-  {
-    key = "returns",
-    label = "Returns/Buses",
-    prefix = "BUS",
-    color = 0x757575,
-    tokens = {
-      "bus", "buss", "aux", "send", "return", "reverb", "delay", "verb",
-      "parallel", "stem", "group"
-    },
-    role_order = { "reverb", "verb", "delay", "parallel", "bus", "aux", "return" }
-  },
-  {
-    key = "reference",
-    label = "Reference",
-    prefix = "REF",
-    color = 0x9A9A9A,
-    tokens = { "ref", "reference", "rough", "demo", "print", "bounce", "master", "mix" },
-    role_order = { "reference", "ref", "rough", "demo", "print", "bounce", "master" }
-  },
-  {
-    key = "other",
-    label = "Other",
-    prefix = "MISC",
-    color = DEFAULT_COLOR,
-    tokens = {},
-    role_order = {}
-  }
-}
-
-local category_by_key = {}
-for index, category in ipairs(core.categories) do
-  category.order = index
-  category_by_key[category.key] = category
+---Get RGB color integer for a given category and palette
+---@param category_key string
+---@param palette_name? string
+---@return number
+function core.get_category_color(category_key, palette_name)
+  return palettes.get_color(category_key, palette_name)
 end
 
 local function clone_shallow(value)
@@ -153,6 +73,9 @@ local function clone_shallow(value)
   return copy
 end
 
+---Normalize a track name for token matching
+---@param value any
+---@return string
 local function normalize(value)
   value = tostring(value or ""):lower()
   value = value:gsub("[_%-%./\\]+", " ")
@@ -180,24 +103,42 @@ local function role_rank(normalized, category)
   return 999
 end
 
-local function score_category(normalized, category)
+local function score_category(normalized, category, fx_names)
   local score = 0
   for _, token in ipairs(category.tokens or {}) do
     if contains_token(normalized, token) then
-      score = score + #token
+      score = score + (#token * 2)
     end
   end
+
+  -- Contextual FX clues scoring
+  if fx_names and #fx_names > 0 then
+    for _, fx in ipairs(fx_names) do
+      local fx_norm = normalize(fx)
+      for _, clue in ipairs(category.fx_clues or {}) do
+        if contains_token(fx_norm, clue) then
+          score = score + 15
+        end
+      end
+    end
+  end
+
   return score
 end
 
-function core.classify_track_name(name)
+---Classify a track based on name and loaded FX plugin clues
+---@param track_info table|string
+---@return CategoryDefinition
+function core.classify_track(track_info)
+  local name = type(track_info) == "table" and track_info.name or tostring(track_info or "")
+  local fx_list = type(track_info) == "table" and track_info.fx_names or {}
   local normalized = normalize(name)
-  local best = category_by_key.other
+  local best = lexicon.category_by_key.other
   local best_score = 0
 
-  for _, category in ipairs(core.categories) do
+  for _, category in ipairs(lexicon.categories) do
     if category.key ~= "other" then
-      local score = score_category(normalized, category)
+      local score = score_category(normalized, category, fx_list)
       if score > best_score then
         best = category
         best_score = score
@@ -209,6 +150,13 @@ function core.classify_track_name(name)
   result.score = best_score
   result.role_rank = role_rank(normalized, best)
   return result
+end
+
+---Classify track name only
+---@param name string
+---@return CategoryDefinition
+function core.classify_track_name(name)
+  return core.classify_track({ name = name })
 end
 
 local titlecase_small_words = {
@@ -225,10 +173,13 @@ local titlecase_small_words = {
 }
 
 local function titlecase_word(word, index)
+  local lower = word:lower()
+  if lexicon.acronyms[lower] then
+    return lexicon.acronyms[lower]
+  end
   if word:upper() == word and #word <= 4 then
     return word
   end
-  local lower = word:lower()
   if index > 1 and titlecase_small_words[lower] then
     return lower
   end
@@ -243,23 +194,30 @@ local function titlecase(value)
   return table.concat(words, " ")
 end
 
-local removable_prefixes = {
-  "DRM", "BAS", "VOX", "GTR", "KEY", "SYN", "STR", "HORN", "FX", "BUS", "REF", "MISC"
-}
-
+---Clean and format track name according to audio engineering conventions
+---@param name any
+---@return string
 function core.clean_track_name(name)
   local value = tostring(name or "")
+  -- Remove common audio file extensions
+  value = value:gsub("%.%a%a%a+$", "")
+  -- Remove stem leading numbers like "01_", "Stem_02 - ", "01_STEM_"
+  value = value:gsub("^%s*%d+[%s%._%-:]+", "")
+  value = value:gsub("^%s*[Ss][Tt][Ee][Mm]%s*[%-_%d]*%s*[%-_:]%s*", "")
   value = value:gsub("^%s*%d+[%s%._%-:]+", "")
   value = value:gsub("^%s*%[[^%]]+%]%s*", "")
-  for _, prefix in ipairs(removable_prefixes) do
-    value = value:gsub("^%s*" .. prefix .. "%s*[%-%:]%s*", "")
+
+  for _, prefix in ipairs(lexicon.removable_prefixes) do
+    value = value:gsub("^[ \t]*" .. prefix:lower() .. "[ \t]*[%-%:_][ \t]*", "")
+    value = value:gsub("^[ \t]*" .. prefix:upper() .. "[ \t]*[%-%:_][ \t]*", "")
   end
+
   value = value:gsub("[_%./\\]+", " ")
   value = value:gsub("%s*%-%s*", " - ")
   value = value:gsub("%s+", " ")
   value = value:gsub("^%s+", ""):gsub("%s+$", "")
 
-  if value == "" or value:lower():match("^track%s*%d*$") then
+  if value == "" or value:lower():match("^track%s*%d*$") or not value:match("%w") then
     return "Untitled"
   end
 
@@ -277,23 +235,74 @@ local function format_name(track, category, options)
   return string.format("%s - %s", category.prefix, clean_name)
 end
 
-local function compare_planned(a, b)
-  if a.category_order ~= b.category_order then
-    return a.category_order < b.category_order
+-- Vocal-first category priority mapping
+local vocal_first_priority = {
+  vocals = 1,
+  drums = 2,
+  bass = 3,
+  synths = 4,
+  keys = 5,
+  guitars = 6,
+  orchestral = 7,
+  fx = 8,
+  returns = 9,
+  other = 10,
+  reference = 11
+}
+
+local function get_sort_comparator(sort_mode)
+  if sort_mode == "vocal_first" then
+    return function(a, b)
+      local a_ord = vocal_first_priority[a.category_key] or 99
+      local b_ord = vocal_first_priority[b.category_key] or 99
+      if a_ord ~= b_ord then
+        return a_ord < b_ord
+      end
+      if a.role_rank ~= b.role_rank then
+        return a.role_rank < b.role_rank
+      end
+      local an = normalize(a.clean_name)
+      local bn = normalize(b.clean_name)
+      if an ~= bn then
+        return an < bn
+      end
+      return a.original_index < b.original_index
+    end
+  elseif sort_mode == "alpha" then
+    return function(a, b)
+      local an = normalize(a.clean_name)
+      local bn = normalize(b.clean_name)
+      if an ~= bn then
+        return an < bn
+      end
+      return a.original_index < b.original_index
+    end
+  else
+    -- Default standard studio mix order
+    return function(a, b)
+      if a.category_order ~= b.category_order then
+        return a.category_order < b.category_order
+      end
+      if a.role_rank ~= b.role_rank then
+        return a.role_rank < b.role_rank
+      end
+      local an = normalize(a.clean_name)
+      local bn = normalize(b.clean_name)
+      if an ~= bn then
+        return an < bn
+      end
+      return a.original_index < b.original_index
+    end
   end
-  if a.role_rank ~= b.role_rank then
-    return a.role_rank < b.role_rank
-  end
-  local an = normalize(a.clean_name)
-  local bn = normalize(b.clean_name)
-  if an ~= bn then
-    return an < bn
-  end
-  return a.original_index < b.original_index
 end
 
+---Build a comprehensive organization plan from collected tracks
+---@param tracks table[]
+---@param options? table
+---@return OrganizationPlan
 function core.build_plan(tracks, options)
   options = options or {}
+  local palette_name = options.palette or core.DEFAULT_PALETTE
   local candidates = {}
   local selected_only = options.selected_only == true
 
@@ -303,8 +312,17 @@ function core.build_plan(tracks, options)
       include = include and track.selected == true
     end
     if include then
-      local category = core.classify_track_name(track.name)
+      local category = core.classify_track(track)
+      -- Allow manual override from UI if provided
+      if track.category_override and lexicon.category_by_key[track.category_override] then
+        category = clone_shallow(lexicon.category_by_key[track.category_override])
+        category.role_rank = 1
+        category.score = 100
+      end
+
       local clean_name = core.clean_track_name(track.name)
+      local category_color = palettes.get_color(category.key, palette_name)
+
       candidates[#candidates + 1] = {
         id = track.id or index,
         track = track,
@@ -316,14 +334,23 @@ function core.build_plan(tracks, options)
         category_label = category.label,
         category_prefix = category.prefix,
         category_order = category.order,
-        color = category.color or DEFAULT_COLOR,
+        color = category_color,
         role_rank = category.role_rank or 999,
         score = category.score or 0
       }
     end
   end
 
-  table.sort(candidates, compare_planned)
+  local sort_mode = options.sort_mode
+  if sort_mode == nil then
+    sort_mode = (options.sort_tracks == false) and "none" or "mix"
+  end
+
+  if sort_mode ~= "none" and options.sort_tracks ~= false then
+    local comp = get_sort_comparator(sort_mode)
+    table.sort(candidates, comp)
+  end
+
 
   local seen_categories = {}
   local groups = {}
@@ -345,12 +372,16 @@ function core.build_plan(tracks, options)
 
   return {
     version = core.VERSION,
+    palette = palette_name,
     options = options,
     tracks = candidates,
     groups = groups
   }
 end
 
+---Summarize plan into a human-readable string
+---@param plan OrganizationPlan
+---@return string
 function core.summarize_plan(plan)
   local parts = {}
   for _, group in ipairs(plan.groups or {}) do
@@ -362,6 +393,9 @@ function core.summarize_plan(plan)
   return table.concat(parts, ", ")
 end
 
+---Calculate folder insertion positions for REAPER tracks
+---@param plan OrganizationPlan
+---@return FolderInsertion[]
 function core.folder_insertions(plan)
   local insertions = {}
   local inserted = 0

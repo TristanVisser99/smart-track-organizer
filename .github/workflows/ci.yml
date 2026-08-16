@@ -1,0 +1,59 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  code-quality:
+    name: Lint & Format Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. StyLua Code Formatting Check
+      - name: StyLua Format Check
+        uses: JohnnyMorganz/stylua-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --check .
+
+      # 2. Selene Strict Linter
+      - name: Selene Static Linter
+        uses: NTBBloodbath/selene-action@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --display-style=quiet .
+
+  multi-version-tests:
+    name: Test Suite (Lua ${{ matrix.luaVersion }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        luaVersion: ["5.4", "5.3", "luajit"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Lua environment
+        uses: hishamhm/gh-actions-lua@v11
+        with:
+          luaVersion: ${{ matrix.luaVersion }}
+
+      - name: Setup LuaRocks
+        uses: hishamhm/gh-actions-luarocks@v4
+
+      - name: Install Luacheck Linter
+        run: luarocks install luacheck
+
+      - name: Run Luacheck Analysis
+        run: luacheck .
+
+      - name: Run Strict Test Suites (28 Tests)
+        run: |
+          chmod +x run_tests.sh
+          ./run_tests.sh

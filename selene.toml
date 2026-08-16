@@ -1,0 +1,16 @@
+std = "reaper"
+
+[config]
+exclude = [
+  "src/lib/rtk.lua",
+  ".git"
+]
+
+[rules]
+unused_variable = "error"
+shadowing = "warn"
+multiple_statements = "error"
+empty_if = "error"
+empty_loop = "error"
+duplicate_keys = "error"
+unscoped_variables = "error"

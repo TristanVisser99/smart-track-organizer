@@ -27,8 +27,22 @@ local function make_reaper_mock(input, tracks)
     undo_started = false,
     undo_ended = false,
     refresh_depth = 0,
-    arranged = false
+    arranged = false,
+    extstate = {}
   }
+
+  function mock.HasExtState(section, key)
+    return mock.extstate[section .. ":" .. key] ~= nil
+  end
+
+  function mock.GetExtState(section, key)
+    return mock.extstate[section .. ":" .. key] or ""
+  end
+
+  function mock.SetExtState(section, key, val, persist)
+    mock.extstate[section .. ":" .. key] = tostring(val)
+  end
+
 
   function mock.get_action_context()
     return nil, "./Smart Track Organizer.lua"
@@ -288,6 +302,30 @@ function tests.selected_scope_with_no_selected_tracks_is_noop()
   assert_true(not mock.undo_started, "empty selected scope should not open an undo block")
   assert_equal(mock.messages[1].message, "No tracks found for the selected scope.")
 end
+
+function tests.extstate_persists_user_preferences()
+  local adapter = require("reaper_adapter")
+  local mock = make_reaper_mock("", {})
+
+  -- Test default options
+  local opts = adapter.load_options(mock)
+  assert_equal(opts.create_folders, true)
+  assert_equal(opts.palette, "modern")
+
+  -- Save custom options
+  opts.create_folders = false
+  opts.palette = "vintage"
+  opts.prefix_names = false
+  adapter.save_options(opts, mock)
+
+  -- Reload and verify
+  local reloaded = adapter.load_options(mock)
+  assert_equal(reloaded.create_folders, false)
+  assert_equal(reloaded.palette, "vintage")
+  assert_equal(reloaded.prefix_names, false)
+  assert_equal(reloaded.sort_tracks, true)
+end
+
 
 local function run()
   local names = {}

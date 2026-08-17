@@ -1,5 +1,5 @@
 -- @description Smart Track Organizer Pro
--- @author Group 3
+-- @author Tristan (27933024), Rahul (28259882)
 -- @version 2.0.0
 
 -- @about
